@@ -1,12 +1,12 @@
-1 | What is the total sales? |
-| 2 | Which are the top 5 selling products? |
-| 3 | Who are the top 10 customers by purchase? |
-| 4 | Which are the top 5 selling cities? |
-| 5 | How much did each gender buy (gender-wise sales)? |
-| 6 | Which year had the best sales? |
-| 7 | Which month had the best sales? |
-| 8 | Which month is best for each product (month-wise product selling)? |
-| 9 | Which category sells the most? |
+1  What is the total sales? 
+2  Which are the top 5 selling products? 
+3  Who are the top 10 customers by purchase? 
+4  Which are the top 5 selling cities? 
+5  How much did each gender buy (gender-wise sales)? 
+6  Which year had the best sales? 
+7  Which month had the best sales? 
+8  Which month is best for each product (month-wise product selling)? 
+9  Which category sells the most? 
 
 ---
 
