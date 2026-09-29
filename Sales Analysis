@@ -1,0 +1,104 @@
+use customer;
+show tables;
+desc apex1;
+select count(*) from apex1;
+select * from apex1;
+-- 1 Check duplicate record
+select order_id,order_date,customer_id,customer_name,age,gender,city,product,category,quantity,unit_price,total_sales,count(*)'Count'
+from apex1 
+group by order_id,order_date,customer_id,customer_name,age,gender,city,product,category,quantity,unit_price,total_sales 
+having Count>1;
+-- 2 Order_id column duplicate
+select order_id,count(*)'Count' from apex1 group by order_id having count>1 ;
+-- 3  check duplicate with order_id and customer_name
+select order_id,Customer_Name,count(*)'Count' from apex1 group by order_id,Customer_Name having count>1;
+-- 4 Check duplicate order_id with customer_id 
+select order_id,Customer_ID,count(*)'Count' from apex1 group by order_id,Customer_id having count>1;
+-- 5  check duplicate customer_id with customer_name
+select customer_name,Customer_ID,count(*)'Count' from apex1 group by customer_name,Customer_id having count>1;
+-- 6  How many city in their data
+select city,count(*)'num'from apex1 group by city having num>1;
+-- 7  wright unknown in city instead of null value
+update apex1 set city ='Unknown'
+where city is null or city='';
+
+-- 8 change deateformat  of order_date
+update apex1 set order_date = str_to_date(order_date,'%d-%m-%Y');
+-- 9 Change date type of order date text to date
+alter table apex1 modify column Order_Date date;
+-- 10 check city
+select city,count(*)'num'from apex1 group by city having num>1;
+
+-- check null values
+select count(*) from apex1 where order_id is null or order_id='';
+select count(*) from apex1 where order_date is null or order_date='';
+select count(*) from apex1 where customer_id is null or customer_id='';
+select count(*) from apex1 where Customer_Name is null or Customer_Name='';
+select count(*) from apex1 where age is null ;
+select count(*) from apex1 where gender is null or gender='';
+select count(*) from apex1 where quantity is null ;
+select count(*) from apex1 where unit_price is null ;
+select count(*) from apex1 where  total_sales is  null ;
+-- add new column id for analysis because in this table have not any primary key column  
+-- and order_id should unique but there order_id should not unique repeate order_id but all columns does not duplicate
+alter table apex1 add column id int primary key auto_increment;
+select * from apex1;
+ -- checking outlier age in this dataset
+ select  count(*), min(age)'Minimum_age',
+ max(age)'maximum',
+ avg(age)'average'
+ from apex1 where age is not null ;
+ -- order date type text to date
+ alter table apex1 modify order_date date;
+ 
+ -- checking outlier from age
+ with ranked as ( select age , Row_number() over (order by age ) as rn,
+ count(*) over () as total_rows
+ from apex1 where age is not null ) ,
+q as (select ( select age as q1 from ranked where rn =ceil(0.25 * total_rows)) as q1 ,
+(select age as q1 from ranked where rn =ceil(0.75 * total_rows)) as q3 ) 
+
+select  q1,q3,q3-q1 as iqr,q1-1.5*(q3-q1) as lower_fence,
+q3 + 1.5*(q3-q1) as upper_fence from q;
+ 
+ 
+ -- Analysis part
+ -- 1 Total sale
+select sum(total_sales)'Total' from apex1 ;
+-- 2 Top 5 selling product
+select product,round(sum(total_sales))'Total' ,count(*)'Unit' from apex1 group by product  order by  total desc limit 5; 
+
+-- 3 Top 10 purchess customer
+select customer_name,round(sum(total_sales))'Total' from apex1 group by customer_name order by total desc limit 10;
+
+-- 4 Top 5 selling city
+select city,round(sum(total_sales))'Total' from apex1 group by city order by total desc limit 5;
+
+-- 5 Gender wise total selling 
+select gender,round(sum(total_sales))'Total' from apex1  group by gender ;
+
+
+-- 6 Year wise selling 
+select year(str_to_date(order_date ,"%y-%m-%d"))'Years' ,round(sum(total_sales)) 'Total' from apex1  group by years order by total;
+
+ -- 7 year selling
+ select year(order_date)'Years',round(sum(Total_Sales))'Total' from apex1 group by years order by total desc;
+ 
+ -- 8 Month wise selling
+ select month(order_date)'Months',round(sum(total_sales))'Total' from apex1 group by months order by total desc;
+ 
+ -- 9 Month wise  product selling
+ select  product,Months,Total from (select product,month(order_date) as Months,round(sum(total_sales))'Total' ,
+ rank() over (partition by product order by round(sum(total_sales)) ) as rnk from apex1
+ group by product ,months) t where rnk=1;
+ 
+ 
+ 
+ -- 8 Top category selling product
+ select category,round(sum(total_sales))'total' from apex1 group by category order by total desc;
+
+ 
+ 
+ 
+
+ 
